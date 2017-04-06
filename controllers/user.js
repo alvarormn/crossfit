@@ -25,7 +25,7 @@ function saveUser(req, res) {
     bcrypt.hash(params.password, null, null, function(err, hash) {
       newUser.password = hash;
 
-      if (newUser.name && newUser.surname && newUser.nick && newUser.email) {
+      if (newUser.name && newUser.surname && newUser.email) {
         newUser.save((err, userStored) => {
           if (err) {
             res.status(500).send({message: 'ERROR al guardar' + err});
@@ -44,6 +44,23 @@ function saveUser(req, res) {
   }
 }
 
+function updateUser(req, res) {
+  var userId = req.params.id;
+  var update = req.body;
+
+  User.findByIdAndUpdate(userId, update, (err, userUpdate) => {
+    if (err){
+      res.status(500).send({message: 'ERROR al actualizar el usuario' + err});
+    }else {
+      if (!userUpdate) {
+        res.status(404).send({message: 'No se ha actualizar el usuario'});
+      }else {
+        res.status(200).send({user: userUpdate});
+      }
+    }
+  })
+}
+
 function loginUser(req, res){
   var params = req.body;
 
@@ -58,11 +75,17 @@ function loginUser(req, res){
         res.status(404).send({message: 'El usuario no existe'})
       }else {
         bcrypt.compare(password, user.password, function(err, check) {
+          console.log(check);
+          console.log(email);
+          console.log(user.email);
+          console.log(password);
+          console.log(user.password);
           if (check) {
             if (params.gethash) {
               res.status(200).send({
-                token: jwt.createToken(user)
+                token: jwt.createToken(user),
               })
+              console.log(user);
             }else {
               res.status(200).send(user);
             }
@@ -76,8 +99,36 @@ function loginUser(req, res){
 
 }
 
+function uploadImage(req, res) {
+  var userId = req.params.id;
+  var file_name = 'no subido...';
+
+  if (req.files) {
+    var file_path = req.files.image.path;
+
+    console.log(file_path);
+  }else {
+    res.status(200).send({user: 'No ha subido ninguna imagen'});
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
 module.exports = {
   saveUser,
   loginUser,
-  authentication
+  authentication,
+  updateUser,
+  uploadImage
 };
