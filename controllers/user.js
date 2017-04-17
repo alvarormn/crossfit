@@ -88,42 +88,30 @@ function loginUser(req, res){
               console.log(user);
             }else {
               res.status(200).send(user);
-            }
+            };
           } else {
             res.status(404).send({message: 'El usuario no ha podido logearse'})
-          }
+          };
         });
-      }
-    }
-  })
-
-}
+      };
+    };
+  });
+};
 
 function uploadImage(req, res) {
   var userId = req.params.id;
   var file_name = 'no subido...';
-
+  console.log(req.files);
   if (req.files) {
     var file_path = req.files.image.path;
 
     console.log(file_path);
-  }else {
+  } else {
     res.status(200).send({user: 'No ha subido ninguna imagen'});
-  }
+  };
 
 
-
-
-
-
-
-
-
-
-
-
-
-}
+};
 
 module.exports = {
   saveUser,
