@@ -1,5 +1,6 @@
 'use sctrict'
-
+var fs = require('fs');
+var path = require('path');
 var bcrypt = require('bcrypt-nodejs');
 var User = require('../models/user');
 var jwt = require('../services/jwt');
@@ -100,23 +101,59 @@ function loginUser(req, res){
 
 function uploadImage(req, res) {
   var userId = req.params.id;
-  var file_name = 'no subido...';
-  console.log(req.files);
-  if (req.files) {
-    var file_path = req.files.image.path;
 
-    console.log(file_path);
+  if (req.files) {
+
+
+    var file_path = req.files.image.path;
+    var file_ext = path.extname(file_path)
+    var file_name  = path.basename(file_path);
+
+    if (file_ext === '.png' || file_ext === '.jpg' || file_ext === '.gif') {
+      User.findByIdAndUpdate(userId, {image: file_name}, (err, userUpdate) => {
+        if (!userUpdate) {
+          res.status(404).send({message: 'No se ha actualizar el usuario'});
+        }else {
+          res.status(200).send({user: 'Imagen subida correctamente'});
+        }
+      });
+    }else {
+      res.status(200).send({user: 'Extensión del archivo no valido'});
+    }
+
+
+    //console.log(file_ext);
+    //res.status(200).send({user: 'Imagen subida correctamente'});
   } else {
     res.status(200).send({user: 'No ha subido ninguna imagen'});
   };
-
-
 };
+
+function getImageFile(req, res) {
+
+  console.log(path_file);
+
+  var imageFile = req.params.imageFile;
+  var path_file = './uploads/users/' + imageFile;
+
+  fs.exists(path_file, function(exists) {
+
+    if (exists) {
+      res.sendFile(path.resolve(path_file));
+    }else {
+      res.status(200).send({user: 'no existe la imagen'});
+    }
+  });
+
+}
+
+
 
 module.exports = {
   saveUser,
   loginUser,
   authentication,
   updateUser,
-  uploadImage
+  uploadImage,
+  getImageFile
 };
